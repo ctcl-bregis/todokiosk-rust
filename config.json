@@ -7,6 +7,7 @@
     "password": "",
     "mode": "list",
     "priority_sort": "descending",
+    "show_completed": false,
     "colors": {
         "aliceblue": "#f0f8ff",
         "antiquewhite": "#faebd7",
@@ -164,15 +165,15 @@
         "NEEDS-ACTION": {"name": "Needs Action", "color": "#00FFFF"}
     },
     "priority": {
-        "0": {"name": "No Priority", "color": "#ffffff"},
-        "1": {"name": "Highest", "color": "#ff0000"},
-        "2": {"name": "Higher", "color": "#ff3900"},
-        "3": {"name": "High", "color": "#ff7100"},
-        "4": {"name": "Medium High", "color": "#ffaa00"},
-        "5": {"name": "Medium", "color": "#ffe300"},
-        "6": {"name": "Medium Low", "color": "#e3ff00"},
-        "7": {"name": "Low", "color": "#aaff00"},
-        "8": {"name": "Lower", "color": "#71ff00"},
-        "9": {"name": "Lowest", "color": "#00ff00"}
+        "0": {"name": "No Priority", "color": "#ffffff", "value": 10},
+        "1": {"name": "Highest", "color": "#ff0000", "value": 1},
+        "2": {"name": "Higher", "color": "#ff3900", "value": 2},
+        "3": {"name": "High", "color": "#ff7100", "value": 3},
+        "4": {"name": "Medium High", "color": "#ffaa00", "value": 4},
+        "5": {"name": "Medium", "color": "#ffe300", "value": 5},
+        "6": {"name": "Medium Low", "color": "#e3ff00", "value": 6},
+        "7": {"name": "Low", "color": "#aaff00", "value": 7},
+        "8": {"name": "Lower", "color": "#71ff00", "value": 8},
+        "9": {"name": "Lowest", "color": "#00ff00", "value": 9}
     }
 }

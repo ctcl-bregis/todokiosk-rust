@@ -2,16 +2,12 @@
 // File: src/build.rs
 // Purpose: Build needed files
 // Created: March 10, 2024
-// Modified: March 10, 2024
-
+// Modified: March 11, 2024
 
 // touch grass
 use grass;
-//use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fs::File;
-use std::io::Read;
-use std::io::Error;
+use std::io::{Read, Error};
 use std::result::Result;
 
 fn read_file(path: &str) -> Result<String, Error> {
@@ -36,6 +32,6 @@ fn main() {
     check_dir("static/");
     
     let scss = read_file("src/common.scss").unwrap();
-    let css = grass::from_string(mbase_scss_content, &grass_options).unwrap();
+    let css = grass::from_string(scss, &grass_options).unwrap();
     std::fs::write("static/common.css", css).unwrap();
 }

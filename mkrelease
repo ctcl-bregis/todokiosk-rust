@@ -1,0 +1,26 @@
+#!/bin/bash
+# ToDoKiosk - CTCL 2023-2024
+# File: mkrelease
+# Purpose: Builds and gathers files
+# Created: March 11, 2024
+# Modified: March 11, 2024
+
+if [ ! -f Cargo.toml ]; then
+    echo "Cargo.toml not found in the current directory. Make sure this script is being run within the todokiosk-rust directory."
+    exit
+fi
+
+rm release.tar.gz
+rm target/release/todokiosk
+rm static/common.css
+
+if cargo build --profile release ; then
+    cp target/release/todokiosk ./todokiosk
+    tar -czvf release.tar.gz todokiosk config.json templates static
+    rm ./todokiosk
+else
+    echo "Cargo build failed"
+    exit
+fi
+
+
