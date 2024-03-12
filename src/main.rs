@@ -2,7 +2,7 @@
 // File: src/main.rs
 // Purpose: Main code
 // Created: March 10, 2024
-// Modified: March 11, 2024
+// Modified: March 12, 2024
 
 pub const VERSION: &str = "0.1.0";
 
@@ -32,6 +32,8 @@ struct Status {
 
 #[derive(Deserialize)]
 struct Config {
+    serverip: String,
+    serverport: u16,
     autoreload: String,
     strftime: String,
     dav_url: String,
@@ -43,7 +45,8 @@ struct Config {
     show_completed: bool,
     colors: HashMap<String, String>,
     status: HashMap<String, Status>,
-    priority: HashMap<String, Priority>
+    priority: HashMap<String, Priority>,
+    class: HashMap<String, bool>
 }
 
 // Data is in a struct so it can be inserted into web::Data
@@ -57,6 +60,7 @@ struct Task {
     status: Status,
     priority: Priority,
     summary: String,
+    categories: String,
     created: String,
     modified: String
 }
@@ -79,11 +83,13 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
     let mut tcolor: String = String::from("");
     let mut tstatus: Status = Status { name: "".to_string(), color: "".to_string() };
     let mut tpriority: Priority = Priority { name: "".to_string(), color: "".to_string(), value: 0 };
+    let mut tcategories: String = String::from("");
     let mut tsummary: String = String::from("");
     let mut tcreated: String = String::from("");
     let mut tmodified: String = String::from("");
 
     for prop in &todo.ical().children.clone().into_iter().nth(0).unwrap().properties {
+        //dbg!(&prop);
         if prop.name == "COLOR" {
             tcolor = config.colors.get(&prop.value.clone()).unwrap().to_string();
         }
@@ -98,6 +104,7 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
         }
         if prop.name == "SUMMARY" {
             tsummary = prop.value.clone();
+            tsummary = tsummary.replace("\\,", ",");
         }
         if prop.name == "CREATED" {
             let parsedtime = NaiveDateTime::parse_from_str(&prop.value, "%Y%m%dT%H%M%SZ").unwrap().and_local_timezone(Utc).unwrap();
@@ -107,6 +114,16 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
             let parsedtime = NaiveDateTime::parse_from_str(&prop.value, "%Y%m%dT%H%M%SZ").unwrap().and_local_timezone(Utc).unwrap();
             tmodified = parsedtime.with_timezone(&Local).format(&config.strftime).to_string();
         }
+        if prop.name == "CLASS" {
+            match config.class.get(&prop.value) {
+                Some(false) => return None,
+                Some(true) => (),
+                None => ()
+            }
+        }
+        if prop.name == "CATEGORIES" {
+            tcategories = prop.value.replace(",", ", ")
+        }
     }
 
     let task: Task = Task {
@@ -114,6 +131,7 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
         status: tstatus,
         priority: tpriority,
         summary: tsummary,
+        categories: tcategories,
         created: tcreated,
         modified: tmodified
     };
@@ -197,7 +215,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(styling))
             .service(web::resource("/").route(web::get().to(index)))
     })
-    .bind(("127.0.0.1", 8000))?
+    .bind((config.serverip, config.serverport))?
     .run()
     .await
 }

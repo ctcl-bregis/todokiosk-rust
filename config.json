@@ -1,4 +1,6 @@
 {
+    "serverip": "0.0.0.0",
+    "serverport": 8000,
     "autoreload": "60",
     "strftime": "%b %-d, %Y, %H:%M %Z",
     "dav_url": "",
@@ -160,9 +162,9 @@
     },
     "status": {
         "CANCELLED": {"name": "Cancelled", "color": "#FF0000"},
-        "COMPLETED": {"name": "Completed", "color": "#00FF00"},
+        "COMPLETED": {"name": "Completed", "color": "#7F7F7F"},
         "IN-PROCESS": {"name": "In Process", "color": "#FFFF00"},
-        "NEEDS-ACTION": {"name": "Needs Action", "color": "#00FFFF"}
+        "NEEDS-ACTION": {"name": "Needs Action", "color": "#00FF00"}
     },
     "priority": {
         "0": {"name": "No Priority", "color": "#ffffff", "value": 10},
@@ -175,5 +177,10 @@
         "7": {"name": "Low", "color": "#aaff00", "value": 7},
         "8": {"name": "Lower", "color": "#71ff00", "value": 8},
         "9": {"name": "Lowest", "color": "#00ff00", "value": 9}
+    },
+    "class": {
+        "PUBLIC": true,
+        "PRIVATE": false,
+        "CONFIDENTIAL": false
     }
 }

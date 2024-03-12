@@ -1,6 +1,6 @@
 [package]
 name = "todokiosk"
-version = "1.3.1"
+version = "0.2.0"
 license = "MIT"
 edition = "2021"
 build = "src/build.rs"

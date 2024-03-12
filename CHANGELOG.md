@@ -1,5 +1,15 @@
 # todokiosk-rust
 
+## v0.2.0 - March 12, 2024
+Additons:
+- Classification parameter support to show or hide tasks with a certain "CLASS" value
+- Ability to configure the webserver binding IP and port from config.json
+- Support for the display of categories if provided
+
+Changes:
+- Default colors for "Status" text
+- Fixed version number in Cargo.toml
+
 ## v0.1.0 - March 12, 2024
 Differences from todokiosk-python 0.3.2
 
