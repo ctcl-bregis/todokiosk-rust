@@ -49,9 +49,9 @@ section {
     background-size: cover;
     background-position-x: center;
     padding: 2pt;
-    border-width: 3pt;
+    border-width: 2pt;
     border-style: solid;
-    margin: 6pt;
+    margin: 4pt;
 }
 
 section li {
@@ -66,20 +66,20 @@ section p {
 
 section hr {
     border-color: #404040;
-    border-width: 1pt;
+    border-width: 0.5pt;
     margin-right: 4pt;
     margin-left: 4pt;
 }
 
 .tasksummary {
     font-style: bold;
-    font-size: 16pt;
-    margin: 4pt;
+    font-size: 14pt;
+    margin: 2pt;
 }
 
 .status {
-    font-size: 12pt;
-    margin: 4pt;
+    font-size: 10pt;
+    margin: 2pt;
 }
 
 .footertext {

@@ -1,5 +1,11 @@
 # todokiosk-rust
 
+## v0.2.1 - May 14, 2024
+
+Changes:
+- Code optimizations
+- More compact list items
+
 ## v0.2.0 - March 12, 2024
 Additons:
 - Classification parameter support to show or hide tasks with a certain "CLASS" value

@@ -2,7 +2,7 @@
 // File: src/main.rs
 // Purpose: Main code
 // Created: March 10, 2024
-// Modified: March 12, 2024
+// Modified: May 14, 2024
 
 pub const VERSION: &str = "0.1.0";
 
@@ -88,7 +88,7 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
     let mut tcreated: String = String::from("");
     let mut tmodified: String = String::from("");
 
-    for prop in &todo.ical().children.clone().into_iter().nth(0).unwrap().properties {
+    for prop in &todo.ical().children.clone().into_iter().next().unwrap().properties {
         //dbg!(&prop);
         if prop.name == "COLOR" {
             tcolor = config.colors.get(&prop.value.clone()).unwrap().to_string();
@@ -100,10 +100,10 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
             tstatus = Status { name: config.status.get(&prop.value.clone()).unwrap().name.clone(), color: config.status.get(&prop.value.clone()).unwrap().color.clone() };
         }
         if prop.name == "PRIORITY" {
-            tpriority = Priority { name: config.priority.get(&prop.value.clone()).unwrap().name.clone(), color: config.priority.get(&prop.value.clone()).unwrap().color.clone(), value: config.priority.get(&prop.value.clone()).unwrap().value.clone()};
+            tpriority = Priority { name: config.priority.get(&prop.value.clone()).unwrap().name.clone(), color: config.priority.get(&prop.value.clone()).unwrap().color.clone(), value: config.priority.get(&prop.value.clone()).unwrap().value};
         }
         if prop.name == "SUMMARY" {
-            tsummary = prop.value.clone();
+            tsummary.clone_from(&prop.value);
             tsummary = tsummary.replace("\\,", ",");
         }
         if prop.name == "CREATED" {
@@ -122,7 +122,7 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
             }
         }
         if prop.name == "CATEGORIES" {
-            tcategories = prop.value.replace(",", ", ")
+            tcategories = prop.value.replace(',', ", ")
         }
     }
 
@@ -159,7 +159,7 @@ async fn index(tmpl: web::Data<tera::Tera>, config: web::Data<Config>, styling: 
     };
 
     let mut tasks: Vec<Task> = Vec::new();
-    if calendars.len() > 0 {
+    if !calendars.is_empty() {
         let mut targetcalendar: Option<minicaldav::Calendar> = None;
         for calendar in calendars {
             if calendar.name() == &config.cal_name {
@@ -170,10 +170,7 @@ async fn index(tmpl: web::Data<tera::Tera>, config: web::Data<Config>, styling: 
             let credentials = minicaldav::Credentials::Basic(username.into(), password.into());
             let (todos, _errors) = minicaldav::get_todos(agent.clone(), &credentials, &value).unwrap();
             for todo in todos {
-                match todo2task(todo, &config) {
-                    Some(task) => tasks.push(task),
-                    None => ()
-                }
+                if let Some(task) = todo2task(todo, &config) { tasks.push(task) }
             }
         }
     }
@@ -198,7 +195,7 @@ async fn index(tmpl: web::Data<tera::Tera>, config: web::Data<Config>, styling: 
 async fn main() -> std::io::Result<()> {
     let config: Config = loadconfig().expect("Config load failed");
 
-    if config.dav_url == "" {
+    if config.dav_url.is_empty() {
         panic!("CalDAV server URL is empty, one must be set in config.json")
     }
 
