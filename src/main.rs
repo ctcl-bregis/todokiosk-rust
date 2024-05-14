@@ -4,7 +4,7 @@
 // Created: March 10, 2024
 // Modified: May 14, 2024
 
-pub const VERSION: &str = "0.1.0";
+pub const VERSION: &str = "0.2.1";
 
 use std::collections::HashMap;
 use std::path::Path;
