@@ -7,7 +7,7 @@
         <section style="border-color: {{ task.color }}">
             <p class="tasksummary">{{ task.summary }}</p>
             <hr>
-            <p class="status"><span style="color: {{ task.priority.color }}">Priority: {{ task.priority.name }}</span> - <span style="color: {{ task.status.color }}">Status: {{ task.status.name }}</span>{% if task.categories != "" %} - Categories: {{ task.categories }}{% endif %}<br>Created: {{ task.created }} - Modified: {{ task.modified }}</p>
+            <p class="status"><span style="color: {{ task.priority.color }}">Priority:&nbsp;{{ task.priority.name|safe }}</span>&nbsp;-&nbsp;<span style="color: {{ task.status.color }}">Status:&nbsp;{{ task.status.name|safe }}</span>{% if task.categories != "" %}&nbsp;-&nbsp;Categories:&nbsp;{{ task.categories|safe }}{% endif %}&nbsp;- Created:&nbsp;{{ task.created|safe }}&nbsp;-&nbsp;Modified:&nbsp;{{ task.modified|safe }}</p>
         </section>{% endfor %}{% endif %}
         <hr>
 {% include "footer.html" %}

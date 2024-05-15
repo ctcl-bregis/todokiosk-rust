@@ -1,7 +1,17 @@
 # todokiosk-rust
 
-## v0.2.1 - May 14, 2024
+## v0.3.0 - May 15, 2024
+Additions:
+- Support for query strings to override these config values:
+  - Calendar (cal_name)
+  - Refresh interval (autoreload)
+- Option to display the theme of the calendar
 
+Changes:
+- Creation and modification dates are now on the same line as status and priority if the viewport is wide enough
+- Removed minimum height style for list items
+
+## v0.2.1 - May 14, 2024
 Changes:
 - Code optimizations
 - More compact list items
@@ -14,7 +24,6 @@ Additons:
 
 Changes:
 - Default colors for "Status" text
-- Fixed version number in Cargo.toml
 
 ## v0.1.0 - March 12, 2024
 Differences from todokiosk-python 0.3.2

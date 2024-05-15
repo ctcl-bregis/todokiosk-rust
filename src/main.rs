@@ -2,9 +2,9 @@
 // File: src/main.rs
 // Purpose: Main code
 // Created: March 10, 2024
-// Modified: May 14, 2024
+// Modified: May 15, 2024
 
-pub const VERSION: &str = "0.2.1";
+pub const VERSION: &str = "0.3.0";
 
 use std::collections::HashMap;
 use std::path::Path;
@@ -16,6 +16,12 @@ use url::Url;
 use ureq::Agent;
 use todokiosk::read_file;
 use chrono::{Local, NaiveDateTime, Utc};
+
+#[derive(Deserialize)]
+struct QueryString {
+    cal_name: Option<String>,
+    autoreload: Option<String>
+}
 
 #[derive(Deserialize, Serialize)]
 struct Priority {
@@ -89,7 +95,6 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
     let mut tmodified: String = String::from("");
 
     for prop in &todo.ical().children.clone().into_iter().next().unwrap().properties {
-        //dbg!(&prop);
         if prop.name == "COLOR" {
             tcolor = config.colors.get(&prop.value.clone()).unwrap().to_string();
         }
@@ -97,10 +102,10 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
             if prop.value == "COMPLETED" && !config.show_completed {
                 return None;
             }
-            tstatus = Status { name: config.status.get(&prop.value.clone()).unwrap().name.clone(), color: config.status.get(&prop.value.clone()).unwrap().color.clone() };
+            tstatus = Status { name: config.status.get(&prop.value.clone()).unwrap().name.clone().replace(' ', "&nbsp;"), color: config.status.get(&prop.value.clone()).unwrap().color.clone() };
         }
         if prop.name == "PRIORITY" {
-            tpriority = Priority { name: config.priority.get(&prop.value.clone()).unwrap().name.clone(), color: config.priority.get(&prop.value.clone()).unwrap().color.clone(), value: config.priority.get(&prop.value.clone()).unwrap().value};
+            tpriority = Priority { name: config.priority.get(&prop.value.clone().replace(' ', "&nbsp;")).unwrap().name.clone(), color: config.priority.get(&prop.value.clone()).unwrap().color.clone(), value: config.priority.get(&prop.value.clone()).unwrap().value};
         }
         if prop.name == "SUMMARY" {
             tsummary.clone_from(&prop.value);
@@ -108,11 +113,11 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
         }
         if prop.name == "CREATED" {
             let parsedtime = NaiveDateTime::parse_from_str(&prop.value, "%Y%m%dT%H%M%SZ").unwrap().and_local_timezone(Utc).unwrap();
-            tcreated = parsedtime.with_timezone(&Local).format(&config.strftime).to_string();
+            tcreated = parsedtime.with_timezone(&Local).format(&config.strftime).to_string().replace(' ', "&nbsp;");
         }
         if prop.name == "LAST-MODIFIED" {
             let parsedtime = NaiveDateTime::parse_from_str(&prop.value, "%Y%m%dT%H%M%SZ").unwrap().and_local_timezone(Utc).unwrap();
-            tmodified = parsedtime.with_timezone(&Local).format(&config.strftime).to_string();
+            tmodified = parsedtime.with_timezone(&Local).format(&config.strftime).to_string().replace(' ', "&nbsp;");
         }
         if prop.name == "CLASS" {
             match config.class.get(&prop.value) {
@@ -139,12 +144,27 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
     Some(task)
 }
 
-async fn index(tmpl: web::Data<tera::Tera>, config: web::Data<Config>, styling: web::Data<Styling>) -> Result<impl Responder, Error> {
+async fn index(tmpl: web::Data<tera::Tera>, params: web::Query<QueryString>, config: web::Data<Config>, styling: web::Data<Styling>) -> Result<impl Responder, Error> {
+    // TODO: figure out better way to override values here
+    let autoreload;
+    if params.autoreload.is_some() {
+        autoreload = params.autoreload.as_ref().unwrap();
+    } else {
+        autoreload = &config.autoreload;
+    }
+
+    let cal_name;
+    if params.cal_name.is_some() {
+        cal_name = params.cal_name.as_ref().unwrap();
+    } else {
+        cal_name = &config.cal_name;
+    }
+
     let mut ctx = tera::Context::new();
     ctx.insert("version", VERSION);
     ctx.insert("title", &format!("ToDoKiosk - {}", &config.cal_name));
     ctx.insert("cal_name", &config.cal_name);
-    ctx.insert("autoreload", &config.autoreload);
+    ctx.insert("autoreload", &autoreload);
     ctx.insert("styling", &styling.styling);
 
     let agent = Agent::new();
@@ -162,7 +182,7 @@ async fn index(tmpl: web::Data<tera::Tera>, config: web::Data<Config>, styling: 
     if !calendars.is_empty() {
         let mut targetcalendar: Option<minicaldav::Calendar> = None;
         for calendar in calendars {
-            if calendar.name() == &config.cal_name {
+            if calendar.name() == cal_name {
                 targetcalendar = Some(calendar);
             }
         }
