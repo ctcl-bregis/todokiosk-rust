@@ -1,5 +1,13 @@
 # todokiosk-rust
 
+## v0.3.1 - July 24, 2024
+
+Changes:
+- Code improvements
+- Removed all instances of SCSS
+- Removed build.rs as it is no longer needed
+- Consolidated lib.rs and main.rs
+
 ## v0.3.0 - May 15, 2024
 Additions:
 - Support for query strings to override these config values:

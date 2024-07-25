@@ -2,19 +2,20 @@
 // File: src/main.rs
 // Purpose: Main code
 // Created: March 10, 2024
-// Modified: May 15, 2024
+// Modified: July 24, 2024
 
-pub const VERSION: &str = "0.3.0";
+pub const VERSION: &str = "0.3.1";
 
 use std::collections::HashMap;
 use std::path::Path;
+use std::fs::File;
+use std::io::Read;
 use actix_files as fs;
 use actix_web::{web, App, HttpServer, HttpResponse, Result, Responder, Error};
 use tera::Tera;
 use serde::{Deserialize, Serialize};
 use url::Url;
 use ureq::Agent;
-use todokiosk::read_file;
 use chrono::{Local, NaiveDateTime, Utc};
 
 #[derive(Deserialize)]
@@ -71,6 +72,15 @@ struct Task {
     modified: String
 }
 
+pub fn read_file(path: &str) -> Result<String, std::io::Error> {
+    let mut file = File::open(path).unwrap();
+    let mut buff = String::new();
+
+    file.read_to_string(&mut buff).unwrap();
+
+    Ok(buff)
+}
+
 fn loadconfig() -> Result<Config, std::io::Error> {
     let config: Config;
 
@@ -86,6 +96,7 @@ fn loadconfig() -> Result<Config, std::io::Error> {
 }
 
 fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> Option<Task> {
+    // TODO: Clean up... whatever this is
     let mut tcolor: String = String::from("");
     let mut tstatus: Status = Status { name: "".to_string(), color: "".to_string() };
     let mut tpriority: Priority = Priority { name: "".to_string(), color: "".to_string(), value: 0 };
@@ -146,19 +157,15 @@ fn todo2task(todo: minicaldav::Event, config: &actix_web::web::Data<Config>) -> 
 
 async fn index(tmpl: web::Data<tera::Tera>, params: web::Query<QueryString>, config: web::Data<Config>, styling: web::Data<Styling>) -> Result<impl Responder, Error> {
     // TODO: figure out better way to override values here
-    let autoreload;
-    if params.autoreload.is_some() {
-        autoreload = params.autoreload.as_ref().unwrap();
-    } else {
-        autoreload = &config.autoreload;
-    }
+    let autoreload = match params.autoreload.clone() {
+        Some(autoreload) => autoreload,
+        None => config.autoreload.clone()
+    };
 
-    let cal_name;
-    if params.cal_name.is_some() {
-        cal_name = params.cal_name.as_ref().unwrap();
-    } else {
-        cal_name = &config.cal_name;
-    }
+    let cal_name = match params.cal_name.clone() {
+        Some(cal_name) => cal_name,
+        None => config.cal_name.clone()
+    };
 
     let mut ctx = tera::Context::new();
     ctx.insert("version", VERSION);
@@ -182,7 +189,7 @@ async fn index(tmpl: web::Data<tera::Tera>, params: web::Query<QueryString>, con
     if !calendars.is_empty() {
         let mut targetcalendar: Option<minicaldav::Calendar> = None;
         for calendar in calendars {
-            if calendar.name() == cal_name {
+            if calendar.name() == &cal_name {
                 targetcalendar = Some(calendar);
             }
         }

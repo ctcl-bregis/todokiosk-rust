@@ -1,15 +1,10 @@
 [package]
 name = "todokiosk"
-version = "0.3.0"
+version = "0.3.1"
 license = "MIT"
 edition = "2021"
-build = "src/build.rs"
 description = "Web application for displaying To-Do items from a CalDAV server"
 authors = ["CTCL"]
-
-[build-dependencies]
-grass = "0.13.2"
-grass_compiler = "0.13.2"
 
 [dependencies]
 actix-files = "0.6.5"

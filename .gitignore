@@ -17,5 +17,4 @@ Cargo.lock
 config_private.json
 
 # Built files
-static/common.css
 release.tar.gz

@@ -1,6 +1,5 @@
 [build]
-# Set to bonnell to target "Dichlorodifluoromethane" (https://ctcl-tech.com/projects/pc_r12/)
-rustflags = ["-C", "target-cpu=bonnell"]
+rustflags = ["-C", "target-cpu=ivybridge"]
 
 [term]
 quiet = false
